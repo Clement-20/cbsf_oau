@@ -143,6 +143,15 @@
         linear-gradient(160deg, #0B1220 0%, #16244A 100%);
       color: #f8fc00;
     }
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background: radial-gradient(500px circle at var(--spot-x, 78%) var(--spot-y, 22%), rgba(255,255,255,.12), transparent 48%);
+      mix-blend-mode: screen;
+    }
     .hero::before {
       content: "";
       position: absolute;
@@ -159,6 +168,22 @@
       background: radial-gradient(420px circle at var(--hx, 78%) var(--hy, 22%), rgba(107,140,255,.42), transparent 55%);
       transition: background .08s linear;
     }
+    .aceternity-beams { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; opacity: .5; }
+    .aceternity-beam {
+      position: absolute;
+      top: -20%;
+      width: 1px;
+      height: 150%;
+      transform: rotate(28deg);
+      background: linear-gradient(to bottom, transparent, rgba(184,199,255,.65), transparent);
+      filter: blur(.2px);
+      animation: beam-drift 9s ease-in-out infinite;
+    }
+    .aceternity-beam:nth-child(1) { left: 18%; animation-delay: -2s; }
+    .aceternity-beam:nth-child(2) { left: 42%; height: 125%; animation-delay: -5s; opacity: .45; }
+    .aceternity-beam:nth-child(3) { left: 68%; animation-delay: -7s; opacity: .7; }
+    .aceternity-beam:nth-child(4) { left: 88%; height: 120%; animation-delay: -1s; opacity: .35; }
+    @keyframes beam-drift { 0%, 100% { translate: 0 -3%; } 50% { translate: 28px 3%; } }
     .orb {
       position: absolute;
       border-radius: 10%;
@@ -260,6 +285,34 @@
       background: var(--card);
       box-shadow: var(--shadow);
     }
+    .aceternity-card { position: relative; overflow: hidden; }
+    .aceternity-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(280px circle at var(--card-x, 50%) var(--card-y, 0%), rgba(91,130,255,.16), transparent 55%);
+      opacity: 0;
+      transition: opacity .35s ease;
+    }
+    .aceternity-card:hover::before { opacity: 1; }
+    .moving-border { isolation: isolate; }
+    .moving-border::after {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      z-index: -1;
+      border-radius: inherit;
+      padding: 1px;
+      background: conic-gradient(from 0deg, transparent 0 18%, var(--accent) 25%, transparent 34% 58%, var(--accent-2) 66%, transparent 74%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      animation: border-spin 5s linear infinite;
+      opacity: .8;
+    }
+    @keyframes border-spin { to { rotate: 360deg; } }
     .quote {
       margin: 28px 0;
       padding: 18px 20px;
@@ -340,21 +393,31 @@
     .event h3 { margin: 0; font-size: 1rem; }
     .event p { margin: 4px 0 0; font-size: .84rem; color: var(--muted); }
 
-    .Executives { padding-top: 0; }
-    .leader-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; perspective: 900px; }
+    .Executives { padding-top: 0; overflow: hidden; }
+    .leader-viewport {
+      position: relative;
+      margin-top: 10px;
+      padding: 28px 0 38px;
+    }
+    .leader-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+      width: 100%;
+    }
     .leader {
       padding: 26px;
       border: 1px solid var(--line);
       border-radius: 10px;
       background: var(--card);
       box-shadow: var(--shadow);
-      opacity: 0;
-      transform: translateY(20px) scale(.98);
-      transform-style: preserve-3d;
-      transition: box-shadow .25s ease;
+      min-height: 196px;
+      opacity: 1;
+      transform: translateY(var(--leader-lift, 0px)) rotate(var(--leader-tilt, 0deg));
+      transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
     }
-    .leader.is-in { animation: card-pop .7s cubic-bezier(.16,1,.3,1) both; animation-delay: calc(var(--i, 0) * 90ms); }
-    .leader:hover { box-shadow: 0 22px 40px rgba(47,98,255,.16); }
+    .leader:hover { border-color: rgba(184,199,255,.52); box-shadow: 0 22px 40px rgba(47,98,255,.16); }
+    .leader:nth-child(even) { background: linear-gradient(145deg, rgba(91,130,255,.1), var(--card) 48%); }
     @keyframes card-pop { from { opacity: 0; transform: translateY(24px) scale(.96); } to { opacity: 1; transform: none; } }
     .initial {
       display: grid;
@@ -407,7 +470,9 @@
       border-radius: 10px;
       background: var(--navy);
       color: #fff;
-      width: min(calc(100% - 16px), calc(var(--max) + 1080px)); border-radius: 10px;
+      width: 100%;
+      max-width: var(--max);
+      margin: 0 auto;
     }
     .footer-top { display: flex; justify-content: space-between; gap: 24px; padding-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,.12); }
     .footer-brand { display: flex; align-items: center; gap: 12px; }
@@ -442,7 +507,9 @@
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
-      .reveal, .program, .event, .leader, .value { opacity: 1; transform: none; filter: none; }
+      .reveal, .program, .event, .leader, .value { opacity: 1; filter: none; }
+      .leader-grid, .leader { animation: none !important; }
+      .aceternity-beam, .moving-border::after { animation: none !important; }
       .typewriter::after, .cursor { display: none !important; }
     }
     @media (max-width: 1024px) {
@@ -478,14 +545,17 @@
       .program { grid-template-columns: 1fr; gap: 8px; }
       .pill { justify-self: start; }
       .event-intro { position: static; }
-      .leader-grid { grid-template-columns: 1fr 1fr; }
+      .leader-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 0 5vw; }
+      .leader { padding: 22px; }
       .contact-grid { padding: 22px; gap: 28px; }
       .contact-grid .btn { width: 100%; }
       .footer-top, .footer-bottom { flex-direction: column; }
       .footer-socials { margin-left: 0; }
     }
     @media (max-width: 460px) {
-      .leader-grid { grid-template-columns: 1fr; }
+      .leader-viewport { padding-block: 18px 28px; }
+      .leader-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 0 16px; }
+      .leader { min-height: 178px; padding: 20px; }
       .stats { grid-template-columns: 1fr; }
       .stat { border-right: 0; border-bottom: 1px solid rgba(255,255,255,.1); }
       .hero h1 { font-size: clamp(2.5rem, 13vw, 3.6rem); }
@@ -516,6 +586,7 @@
   <main>
     <section class="hero" id="top">
       <div class="hero-glow" id="heroGlow"></div>
+      <div class="aceternity-beams" aria-hidden="true"><span class="aceternity-beam"></span><span class="aceternity-beam"></span><span class="aceternity-beam"></span><span class="aceternity-beam"></span></div>
       <span class="orb orb-a"></span>
       <span class="orb orb-b"></span>
       <span class="orb orb-c"></span>
@@ -544,7 +615,7 @@
 
     <section class="mission" id="about">
       <div class="wrap mission-grid">
-        <div class="mission-copy reveal">
+        <div class="mission-copy aceternity-card reveal">
           <span class="eyebrow">Our foundation</span>
           <h2>Business school by day, disciples by conviction.</h2>
           <p>CBSF exists so no student has to choose between their faith and their field. We are a fellowship of Business Administration students committed to living out the gospel in every ledger, pitch and negotiation.</p>
@@ -557,7 +628,7 @@
           </style>
           
         </div>
-        <div class="values reveal reveal-delay">
+        <div class="values aceternity-card moving-border reveal reveal-delay">
           <h3>What guides us</h3>
           <div class="value" style="--i:0"><strong>01</strong><div><b>Christ-centred</b><span>Scripture shapes every decision, meeting and relationship.</span></div></div>
           <div class="value" style="--i:1"><strong>02</strong><div><b>Excellence in business</b><span>We hold each other high in academics, enterprise and work.</span></div></div>
@@ -577,11 +648,11 @@
           </div>
         </div>
         <div class="program-list">
-          <article class="program"><h3>General Fellowship Meeting</h3><p>Worship, teaching and testimonies for all members—our main weekly gathering.</p><span class="pill">Weekly</span></article>
-          <article class="program"><h3>Bible Study &amp; Discipleship</h3><p>Small-group study that walks members through scripture in depth.</p><span class="pill">Weekly</span></article>
-          <article class="program"><h3>Business &amp; Career Talks</h3><p>Alumni and industry guests speak on internships, entrepreneurship and careers.</p><span class="pill">Monthly</span></article>
-          <article class="program"><h3>Prayer Meeting</h3><p>Corporate prayer for the fellowship, the university and academic seasons.</p><span class="pill">Weekly</span></article>
-          <article class="program"><h3>Retreats &amp; Conferences</h3><p>A weekend off campus for teaching, rest and deeper community.</p><span class="pill">Termly</span></article>
+          <article class="program aceternity-card"><h3>General Fellowship Meeting</h3><p>Worship, teaching and testimonies for all members—our main weekly gathering.</p><span class="pill">Weekly</span></article>
+          <article class="program aceternity-card"><h3>Bible Study &amp; Discipleship</h3><p>Small-group study that walks members through scripture in depth.</p><span class="pill">Weekly</span></article>
+          <article class="program aceternity-card"><h3>Business &amp; Career Talks</h3><p>Alumni and industry guests speak on internships, entrepreneurship and careers.</p><span class="pill">Monthly</span></article>
+          <article class="program aceternity-card"><h3>Prayer Meeting</h3><p>Corporate prayer for the fellowship, the university and academic seasons.</p><span class="pill">Weekly</span></article>
+          <article class="program aceternity-card"><h3>Retreats &amp; Conferences</h3><p>A weekend off campus for teaching, rest and deeper community.</p><span class="pill">Termly</span></article>
         </div>
       </div>
     </section>
@@ -613,27 +684,32 @@
             <p>Meet the people helping to steward this 2026/27 of CBSF.</p>
           </div>
         </div>
-        <div class="leader-grid">
-          <article class="leader"><img src="" alt="Micheal"><h3>President</h3><span>Micheal Oluwatimileyin</span></article>
-          <article class="leader"><div class="initial">VP</div><h3>Vice President</h3><span>Blessing Roseline</span></article>
-          <article class="leader"><div class="initial">GS</div><h3>General Secretary</h3><span>Emmanuel Faalore</span></article>
-          <article class="leader"><div class="initial">FS</div><h3>Financial Secretary</h3><span>Moyosore Sowemimo</span></article>
-          <article class="leader"><div class="initial">PS</div><h3>Organising Secretary</h3><span>Daniel Nwagu</span></article>
-          <article class="leader"><div class="initial">WO</div><h3>Prayer Coordinator</h3><span>Babalola AnjolaOluwa</span></article>
-          <article class="leader"><div class="initial">P</div><h3>Asst. General Secretary</h3><span>Graced Shiloh</span></article>
-          <article class="leader"><div class="initial">VP</div><h3>Media Head</h3><span>Muyiwa Adeniyi</span></article>
-          <article class="leader"><img src="clement_ife.png" alt="Clement IfeOluwa"v><h3>Asst. Media Head</h3><span>Clement IfeOluwa</span></article>
-          <article class="leader"><div class="initial">FS</div><h3>Choir Coordinator</h3><span>Benita falokun</span></article>
-          <article class="leader"><div class="initial">PS</div><h3>PRO</h3><span>PEACE AJAYI</span></article>
-          <article class="leader"><div src="initial">WO</div><h3>Class Pastors</h3><span>... to be continued</span></article>
-        </div>
-      </div>
+        <div class="leader-viewport">
+          <div class="leader-grid" id="leaderTrack" aria-label="CBSF executives">
+            <article class="leader"><div class="initial">P</div><h3>President</h3><span>Michael Oluwatimileyin</span></article>
+            <article class="leader"><div class="initial">VP</div><h3>Vice President</h3><span>Blessing Roseline</span></article>
+            <article class="leader"><div class="initial">GS</div><h3>General Secretary</h3><span>Emmanuel Faalore</span></article>
+            <article class="leader"><div class="initial">FS</div><h3>Financial Secretary</h3><span>Moyosore Sowemimo</span></article>
+            <article class="leader"><div class="initial">PS</div><h3>Organising Secretary</h3><span>Daniel Nwagu</span></article>
+            <article class="leader"><div class="initial">WO</div><h3>Prayer Coordinator</h3><span>Babalola AnjolaOluwa</span></article>
+            <article class="leader"><div class="initial">P</div><h3>Asst. General Secretary</h3><span>Graced Shiloh</span></article>
+            <article class="leader"><div class="initial">VP</div><h3>Media Head</h3><span>Muyiwa Adeniyi</span></article>
+            <article class="leader"><div class="initial">AM</div><h3>Asst. Media Head</h3><span>Clement IfeOluwa</span></article>
+            <article class="leader"><div class="initial">CC</div><h3>Choir Coordinator</h3><span>Benita Falokun</span></article>
+            <article class="leader"><div class="initial">PRO</div><h3>PRO</h3><span>Peace Ajayi</span></article>
+            <article class="leader"><div class="initial">CP</div><h3>Class Pastor 4</h3><span>Adetola Idowu</span></article>
+            <article class="leader"><div class="initial">AC</div><h3>Class Pator 3</h3><span>FESTUS BLESSING</span></article>
+            <article class="leader"><div class="initial">WC</div><h3>Class Pastor 2</h3><span>ESTHER NGOZI</span></article>
+            <article class="leader"><div class="initial">ASC</div><h3> Asst. Class pastor 4</h3><span>Eniola Gloria</span></article>
+            <article class="leader"><div class="initial">ASC</div><h3> Asst. Class pastor 3</h3><span>Juwon Emmanuel</span></article>
+            <article class="leader"><div class="initial">EC</div><h3>Asst. Class Pastor 2</h3><span>Precious Ayomide</span></article>
+          </div>
         </div>
       </div>
     </section>
 
     <section class="contact" id="contact">
-      <div class="wrap contact-grid">
+      <div class="wrap contact-grid aceternity-card moving-border">
         <div class="reveal">
           <span class="eyebrow">Come through</span>
           <h2>You already have a seat here.</h2>
@@ -756,7 +832,6 @@
     };
     stagger('.program');
     stagger('.event');
-    stagger('.leader');
 
     const countEl = document.querySelector('[data-count]');
     if (countEl) {
@@ -797,8 +872,12 @@
         y = event.clientY;
         if (hero && glow) {
           const box = hero.getBoundingClientRect();
-          glow.style.setProperty('--hx', `${((event.clientX - box.left) / box.width) * 100}%`);
-          glow.style.setProperty('--hy', `${((event.clientY - box.top) / box.height) * 100}%`);
+          const spotX = ((event.clientX - box.left) / box.width) * 100;
+          const spotY = ((event.clientY - box.top) / box.height) * 100;
+          glow.style.setProperty('--hx', `${spotX}%`);
+          glow.style.setProperty('--hy', `${spotY}%`);
+          hero.style.setProperty('--spot-x', `${spotX}%`);
+          hero.style.setProperty('--spot-y', `${spotY}%`);
         }
         if (crest) {
           const box = crest.getBoundingClientRect();
@@ -833,14 +912,12 @@
         });
         btn.addEventListener('pointerleave', () => { btn.style.transform = ''; });
       });
-      document.querySelectorAll('.leader').forEach(card => {
+      document.querySelectorAll('.aceternity-card').forEach(card => {
         card.addEventListener('pointermove', (event) => {
           const box = card.getBoundingClientRect();
-          const rx = ((event.clientY - box.top) / box.height - .5) * -10;
-          const ry = ((event.clientX - box.left) / box.width - .5) * 12;
-          card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) translateY(-4px)`;
+          card.style.setProperty('--card-x', `${((event.clientX - box.left) / box.width) * 100}%`);
+          card.style.setProperty('--card-y', `${((event.clientY - box.top) / box.height) * 100}%`);
         });
-        card.addEventListener('pointerleave', () => { card.style.transform = ''; });
       });
     }
   </script>
