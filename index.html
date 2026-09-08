@@ -849,6 +849,8 @@
     const executiveCards = [...document.querySelectorAll('.leader')];
     let activeExecutive = -1;
     let executiveWheelCooldown = false;
+    let executiveTouchStartY = 0;
+    let executiveTouchActive = false;
     const showExecutive = (index) => {
       if (index === activeExecutive || !executiveCards[index]) return;
       const previous = executiveCards[activeExecutive];
@@ -886,6 +888,37 @@
         setTimeout(() => { executiveWheelCooldown = false; }, 360);
       };
       addEventListener('wheel', handleExecutiveWheel, { passive: false });
+      addEventListener('touchstart', (event) => {
+        if (!isExecutiveStageVisible() || executiveSection.classList.contains('is-complete')) return;
+        executiveTouchStartY = event.touches[0].clientY;
+        executiveTouchActive = true;
+      }, { passive: true });
+      addEventListener('touchmove', (event) => {
+        if (!executiveTouchActive || !isExecutiveStageVisible() || executiveSection.classList.contains('is-complete')) return;
+        const distance = executiveTouchStartY - event.touches[0].clientY;
+        const movingForward = distance > 0 && activeExecutive < executiveCards.length - 1;
+        const movingBackward = distance < 0 && activeExecutive > 0;
+        if (movingForward || movingBackward) event.preventDefault();
+      }, { passive: false });
+      addEventListener('touchend', (event) => {
+        if (!executiveTouchActive) return;
+        executiveTouchActive = false;
+        if (!isExecutiveStageVisible() || executiveSection.classList.contains('is-complete')) return;
+        const endY = event.changedTouches[0].clientY;
+        const distance = executiveTouchStartY - endY;
+        if (Math.abs(distance) < 42 || executiveWheelCooldown) return;
+        const direction = distance > 0 ? 1 : -1;
+        const nextIndex = activeExecutive < 0 ? 0 : activeExecutive + direction;
+        const movingForward = direction > 0 && activeExecutive < executiveCards.length - 1;
+        const movingBackward = direction < 0 && activeExecutive > 0;
+        if (!movingForward && !movingBackward) {
+          if (direction > 0) executiveSection.classList.add('is-complete');
+          return;
+        }
+        showExecutive(nextIndex);
+        executiveWheelCooldown = true;
+        setTimeout(() => { executiveWheelCooldown = false; }, 360);
+      }, { passive: true });
       addEventListener('scroll', () => {
         if (executiveSection && !isExecutiveStageVisible()) executiveSection.classList.remove('is-complete');
         if (!executiveSection || executiveSection.classList.contains('is-complete')) return;
