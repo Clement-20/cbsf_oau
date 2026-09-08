@@ -89,7 +89,7 @@
     .btn--red { background: var(--accent); color: #071021; box-shadow: 0 10px 24px rgba(91, 130, 255, .28); }
     .btn--red:hover { background: #7698ff; }
     .btn--light { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.22); color: #fff; backdrop-filter: blur(10px); }
-    .btn--light:hover { background: #120133; color: var(--ink); }
+    .btn--light:hover { background: rgba(91,130,255,.18); color: var(--ink); }
     .btn--outline { background: transparent; border-color: var(--line); color: var(--ink); }
     .btn--outline:hover { border-color: var(--ink); }
     :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
@@ -128,7 +128,7 @@
     .navlinks a:hover { background: rgba(47, 98, 255, .08); color: var(--ink); }
     .navcta { margin-left: 6px; }
     .mobile-only { display: none; }
-    .navtoggle { display: none; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 10%; background: #8e0000; color: var(--ink); font-size: 1.15rem; }
+    .navtoggle { display: none; width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 10%; background: var(--accent); color: #071021; font-size: 1.15rem; }
 
     .hero {
       position: relative;
@@ -141,7 +141,7 @@
         radial-gradient(circle at 88% 12%, rgba(107, 140, 255, .38), transparent 32%),
         radial-gradient(circle at 12% 88%, rgba(47, 98, 255, .28), transparent 34%),
         linear-gradient(160deg, #0B1220 0%, #16244A 100%);
-      color: #f8fc00;
+      color: var(--ink);
     }
     .hero::after {
       content: "";
@@ -331,6 +331,11 @@
     .value strong { color: var(--accent-2); font-size: .95rem; }
     .value b { display: block; font-size: .92rem; }
     .value span { display: block; margin-top: 3px; font-size: .82rem; color: rgba(255,255,255,.68); }
+    .hero-eyebrow { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.14); color: var(--accent-2); }
+    .value:nth-of-type(1) { animation-delay: 0ms; }
+    .value:nth-of-type(2) { animation-delay: 110ms; }
+    .value:nth-of-type(3) { animation-delay: 220ms; }
+    .value:nth-of-type(4) { animation-delay: 330ms; }
 
     .program-list { display: grid; gap: 12px; }
     .program {
@@ -393,32 +398,41 @@
     .event h3 { margin: 0; font-size: 1rem; }
     .event p { margin: 4px 0 0; font-size: .84rem; color: var(--muted); }
 
-    .Executives { padding-top: 0; overflow: hidden; }
+    .Executives { padding-top: 0; min-height: 100vh; overflow: clip; }
+    .Executives.is-complete { min-height: 0; }
     .leader-viewport {
-      position: relative;
+      position: sticky;
+      top: 110px;
       margin-top: 10px;
-      padding: 28px 0 38px;
+      height: 430px;
+      display: grid;
+      place-items: center;
     }
     .leader-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 18px;
-      width: 100%;
+      position: relative;
+      width: min(100%, 540px);
+      height: 340px;
     }
     .leader {
+      position: absolute;
+      inset: 0;
       padding: 26px;
       border: 1px solid var(--line);
       border-radius: 10px;
       background: var(--card);
       box-shadow: var(--shadow);
       min-height: 196px;
-      opacity: 1;
-      transform: translateY(var(--leader-lift, 0px)) rotate(var(--leader-tilt, 0deg));
-      transition: border-color .25s ease, box-shadow .25s ease, transform .25s ease;
+      opacity: 0;
+      transform: translateY(28px) scale(.96);
+      pointer-events: none;
+      transition: border-color .25s ease, box-shadow .25s ease;
     }
+    .leader.is-active { animation: executive-enter .65s cubic-bezier(.16,1,.3,1) both; pointer-events: auto; z-index: 2; }
+    .leader.is-exiting { animation: executive-exit .45s ease both; z-index: 1; }
     .leader:hover { border-color: rgba(184,199,255,.52); box-shadow: 0 22px 40px rgba(47,98,255,.16); }
     .leader:nth-child(even) { background: linear-gradient(145deg, rgba(91,130,255,.1), var(--card) 48%); }
-    @keyframes card-pop { from { opacity: 0; transform: translateY(24px) scale(.96); } to { opacity: 1; transform: none; } }
+    @keyframes executive-enter { from { opacity: 0; transform: translateY(28px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes executive-exit { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-24px) scale(1.04); } }
     .initial {
       display: grid;
       place-items: center;
@@ -507,8 +521,12 @@
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation: none !important; transition: none !important; }
-      .reveal, .program, .event, .leader, .value { opacity: 1; filter: none; }
+      .reveal, .program, .event, .value { opacity: 1; transform: none; filter: none; }
       .leader-grid, .leader { animation: none !important; }
+      .Executives { min-height: auto; }
+      .leader-viewport { position: static; height: auto; padding: 28px 0 38px; }
+      .leader-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; width: 100%; height: auto; }
+      .leader { position: relative; inset: auto; opacity: 1; min-height: 178px; transform: none; pointer-events: auto; }
       .aceternity-beam, .moving-border::after { animation: none !important; }
       .typewriter::after, .cursor { display: none !important; }
     }
@@ -533,7 +551,7 @@
         padding: 12px;
         border: 1px solid var(--line);
         border-radius: 28px;
-        background: #8a0303;
+        background: var(--navy);
         box-shadow: var(--shadow);
       }
       .hero { width: min(calc(100% - 16px), calc(var(--max) + 1080px)); border-radius: 24px; }
@@ -545,7 +563,6 @@
       .program { grid-template-columns: 1fr; gap: 8px; }
       .pill { justify-self: start; }
       .event-intro { position: static; }
-      .leader-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; padding: 0 5vw; }
       .leader { padding: 22px; }
       .contact-grid { padding: 22px; gap: 28px; }
       .contact-grid .btn { width: 100%; }
@@ -553,8 +570,9 @@
       .footer-socials { margin-left: 0; }
     }
     @media (max-width: 460px) {
-      .leader-viewport { padding-block: 18px 28px; }
-      .leader-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 0 16px; }
+      .Executives { min-height: 100vh; }
+      .leader-viewport { top: 86px; height: 360px; padding-block: 18px 28px; }
+      .leader-grid { width: min(100%, 320px); height: 260px; }
       .leader { min-height: 178px; padding: 20px; }
       .stats { grid-template-columns: 1fr; }
       .stat { border-right: 0; border-bottom: 1px solid rgba(255,255,255,.1); }
@@ -592,7 +610,7 @@
       <span class="orb orb-c"></span>
       <div class="wrap hero-grid">
         <div class="reveal">
-          <span class="eyebrow" style="background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.14); color:#9BB4FF;">OAU Chapter</span>
+          <span class="eyebrow hero-eyebrow">OAU Chapter</span>
           <h1 aria-label="Formed in scripture, fit for the marketplace.">
             <span class="typewriter" data-typewriter="Formed in scripture, "></span><em class="typewriter" data-typewriter="Graced." data-delay="1000"></em>
           </h1>
@@ -608,7 +626,7 @@
       </div>
       <div class="stats">
         <div class="stat"><strong>Weekly</strong><span>General fellowship meeting</span></div>
-        <div class="stat"><strong data-count="30">0</strong><span>MemberShip &amp; Departments</span></div>
+        <div class="stat"><strong data-count="30">0</strong><span>Members and departments</span></div>
         <div class="stat"><strong>OAU</strong><span>Campus chapter</span></div>
       </div>
     </section>
@@ -620,20 +638,14 @@
           <h2>Business school by day, disciples by conviction.</h2>
           <p>CBSF exists so no student has to choose between their faith and their field. We are a fellowship of Business Administration students committed to living out the gospel in every ledger, pitch and negotiation.</p>
           <blockquote class="quote">“Whatever you do, work at it with all your heart, as working for the Lord.”<cite>Colossians 3:23</cite></blockquote>
-          <p>We believe business is a mission field—one that calls for integrity, courage and Christ-like Executiveship.</p>
-          <style>
-            p {
-            color: #ffff
-            }
-          </style>
-          
+          <p>We believe business is a mission field—one that calls for integrity, courage and Christ-like leadership.</p>
         </div>
         <div class="values aceternity-card moving-border reveal reveal-delay">
           <h3>What guides us</h3>
-          <div class="value" style="--i:0"><strong>01</strong><div><b>Christ-centred</b><span>Scripture shapes every decision, meeting and relationship.</span></div></div>
-          <div class="value" style="--i:1"><strong>02</strong><div><b>Excellence in business</b><span>We hold each other high in academics, enterprise and work.</span></div></div>
-          <div class="value" style="--i:2"><strong>03</strong><div><b>Community</b><span>Small groups and mentorship keep us accountable.</span></div></div>
-          <div class="value" style="--i:3"><strong>04</strong><div><b>Outreach</b><span>We carry what we receive beyond the fellowship.</span></div></div>
+          <div class="value"><strong>01</strong><div><b>Christ-centred</b><span>Scripture shapes every decision, meeting and relationship.</span></div></div>
+          <div class="value"><strong>02</strong><div><b>Excellence in business</b><span>We hold each other high in academics, enterprise and work.</span></div></div>
+          <div class="value"><strong>03</strong><div><b>Community</b><span>Small groups and mentorship keep us accountable.</span></div></div>
+          <div class="value"><strong>04</strong><div><b>Outreach</b><span>We carry what we receive beyond the fellowship.</span></div></div>
         </div>
       </div>
     </section>
@@ -662,7 +674,7 @@
         <div class="event-intro reveal">
           <span class="eyebrow">Upcoming Programs</span>
           <h2>Make room for what matters.</h2>
-          <p>Save the dates. .</p>
+          <p>Save a place for the moments that bring the fellowship together.</p>
           <a class="btn btn--outline" href="#contact">Ask a question <span class="arrow">→</span></a>
         </div>
         <div class="events">
@@ -724,7 +736,7 @@
         <form class="reveal reveal-delay" id="contactForm">
           <div><label for="name">Full name</label><input id="name" required placeholder="Your name"></div>
           <div><label for="email">Email</label><input id="email" type="email" required placeholder="you@example.com"></div>
-          <div><label for="email">Phone Number</label><input id="phone_number" type="" required placeholder="Whatsapp Number Preferred"></div>
+          <div><label for="phone_number">Phone Number</label><input id="phone_number" type="tel" required placeholder="WhatsApp number preferred"></div>
           <div><label for="message">Message</label><textarea id="message" rows="5" required placeholder="Tell us what you would like to know"></textarea></div>
           <button class="btn btn--red" type="submit">SUBMIT<span class="arrow">→</span></button>
           <p id="formNote" role="status">Thanks! Welcome to CBSF.</p>
@@ -754,7 +766,7 @@
           </div>
         </div>
         <div class="footer-bottom">
-          <span>© <span id="year"></span> Christian Business Students' Fellowship, <b><OAU Chap></b>.</span>
+          <span>© <span id="year"></span> Christian Business Students' Fellowship, <b>OAU Chapter</b>.</span>
           <span>Business Leaders carrying God's Presence.</span>
           <div class="footer-socials" aria-label="Social media links">
             <a class="social-link social-link--instagram" href="https://www.instagram.com/cbsf_oau/" target="_blank" rel="noopener" aria-label="CBSF on Instagram" title="Instagram">
@@ -832,6 +844,57 @@
     };
     stagger('.program');
     stagger('.event');
+
+    const executiveSection = document.querySelector('.Executives');
+    const executiveCards = [...document.querySelectorAll('.leader')];
+    let activeExecutive = -1;
+    let executiveWheelCooldown = false;
+    const showExecutive = (index) => {
+      if (index === activeExecutive || !executiveCards[index]) return;
+      const previous = executiveCards[activeExecutive];
+      if (previous) {
+        previous.classList.remove('is-active');
+        previous.classList.add('is-exiting');
+        setTimeout(() => previous.classList.remove('is-exiting'), 500);
+      }
+      executiveCards[index].classList.remove('is-exiting');
+      executiveCards[index].classList.add('is-active');
+      activeExecutive = index;
+    };
+    if (reduced) {
+      executiveCards.forEach(card => card.classList.add('is-active'));
+    } else {
+      const isExecutiveStageVisible = () => {
+        if (!executiveSection) return false;
+        const box = executiveSection.getBoundingClientRect();
+        return box.top <= 130 && box.bottom >= innerHeight * .72;
+      };
+      const handleExecutiveWheel = (event) => {
+        if (!isExecutiveStageVisible() || executiveSection.classList.contains('is-complete')) return;
+        const direction = event.deltaY > 0 ? 1 : -1;
+        const nextIndex = activeExecutive < 0 ? 0 : activeExecutive + direction;
+        const movingForward = direction > 0 && activeExecutive < executiveCards.length - 1;
+        const movingBackward = direction < 0 && activeExecutive > 0;
+        if (!movingForward && !movingBackward) {
+          if (direction > 0) executiveSection.classList.add('is-complete');
+          return;
+        }
+        event.preventDefault();
+        if (executiveWheelCooldown) return;
+        showExecutive(nextIndex);
+        executiveWheelCooldown = true;
+        setTimeout(() => { executiveWheelCooldown = false; }, 360);
+      };
+      addEventListener('wheel', handleExecutiveWheel, { passive: false });
+      addEventListener('scroll', () => {
+        if (executiveSection && !isExecutiveStageVisible()) executiveSection.classList.remove('is-complete');
+        if (!executiveSection || executiveSection.classList.contains('is-complete')) return;
+        if (isExecutiveStageVisible() && activeExecutive < 0) showExecutive(0);
+      }, { passive: true });
+      addEventListener('resize', () => {
+        if (executiveSection && !isExecutiveStageVisible()) executiveSection.classList.remove('is-complete');
+      });
+    }
 
     const countEl = document.querySelector('[data-count]');
     if (countEl) {
